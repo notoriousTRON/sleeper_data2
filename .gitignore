@@ -1,0 +1,8 @@
+crds.py
+__pycache__
+references.py
+*.csv
+*.xlsx
+*.xls
+*.txt
+\data
