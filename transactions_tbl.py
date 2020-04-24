@@ -2,7 +2,7 @@
 
 #boiler plate & imports
 import os
-os.chdir(r'C:\Users\Dave\Desktop\projects\sleeper_data\modules')
+os.chdir(r'C:\projects\sleeper_data\modules')
 import requests
 import pandas as pd
 import psycopg2 as ps

@@ -1,5 +1,5 @@
 import os
-os.chdir(r'C:\Users\Dave\Desktop\projects\sleeper_data\modules')
+os.chdir(r'C:\projects\sleeper_data\modules')
 import crds
 import psycopg2 as ps
 
