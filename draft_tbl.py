@@ -21,13 +21,13 @@ def drop_table(tbl_name):
     db.close()
     return
 
-def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,player_id):
+def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id):
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO 
-                            draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,player_id) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-    cursor.execute(insert_query, (draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,player_id))
+                            draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    cursor.execute(insert_query, (draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id))
     db.commit()
     cursor.close()
     db.close()
@@ -47,6 +47,8 @@ draft_create = """
     round character(255),
     pick_no character(255),
     overall_pick_no character(255),
+    user_id character(255),
+    roster_id character(255),
     player_id character(255),
     
     primary key(player_id)
@@ -81,7 +83,9 @@ def process_it(year):
         round = pk['round']
         pick_no = pk['draft_slot'],
         overall_pick_no = pk['pick_no']
+        user_id = pk['picked_by']
+        roster_id = pk['roster_id']
         player_id = pk['player_id']
-        draft_player_key = draft_id + "_" + player_id
+        draft_player_key = draft_id + "_" + draft_year + "_" + player_id
         
-        add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,player_id)
+        add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id)
