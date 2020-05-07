@@ -51,7 +51,7 @@ draft_create = """
     roster_id character(255),
     player_id character(255),
     
-    primary key(player_id)
+    primary key(draft_player_key)
     )
     """
 db = open_connection.open_connection()
@@ -86,6 +86,6 @@ def process_it(year):
         user_id = pk['picked_by']
         roster_id = pk['roster_id']
         player_id = pk['player_id']
-        draft_player_key = draft_id + "_" + draft_year + "_" + player_id
+        draft_player_key = draft_id + "_" + player_id
         
         add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id)
