@@ -2,19 +2,29 @@
 
 #boiler plate & imports
 import os
-os.chdir('P:\Projects\Sleeper_data')
+os.chdir(r'C:\projects\sleeper_data\modules')
 import requests
 import pandas as pd
 import psycopg2 as ps
 from pandas.io.json import json_normalize
-import modules.open_connection
+import open_connection
 import references
-#from references import *
+from datetime import datetime
 
 def drop_table(tbl_name):
     db = open_connection.open_connection()
     cursor = db.cursor()
     drop = "DROP TABLE IF EXISTS "+tbl_name
+    cursor.execute(drop)
+    db.commit()
+    cursor.close()
+    db.close()
+    return
+
+def truncate_table(tbl_name):
+    db = open_connection.open_connection()
+    cursor = db.cursor()
+    drop = "TRUNCATE "+tbl_name
     cursor.execute(drop)
     db.commit()
     cursor.close()
@@ -44,6 +54,8 @@ players_data = pd.DataFrame(players_json)
 # roster_data = pd.DataFrame(rosters_json)
 # #pd.read_json(_, orient='split')
 # print(roster_data)
+truncate_table("players_tbl")
+'''
 drop_table("players_tbl")
 players_create = """
     CREATE TABLE players_tbl
@@ -72,7 +84,7 @@ cursor.execute(players_create)
 db.commit()
 cursor.close()
 db.close()
-
+'''
 for i in players_json.keys():
     player_id = i
     try:
