@@ -9,6 +9,7 @@ SELECT
 	,pl.position
 	,s.any_pts AS pts
 	,s.points_above_replacement
+	,s.avg_points_above_replacement
 FROM
 	draft_tbl d
 LEFT JOIN
@@ -25,6 +26,7 @@ LEFT JOIN
 		player_id
 		,SUM(any_pts) AS any_pts
 		,SUM(points_above_replacement) AS points_above_replacement
+		,AVG(points_above_replacement) AS avg_points_above_replacement
 	FROM
 		(
 		SELECT
@@ -76,5 +78,5 @@ WHERE
 	draft_year = '2019' --AND u.display_name = 'notoriousTRON'
 ORDER BY
 	CAST(d.round AS INT), CAST(d.pick_no AS INT)
-) TO 'P:\Projects\sleeper_data\data\startup_draft_analysis.csv'
+) TO 'C:\projects\sleeper_data\data\startup_draft_analysis.csv'
 DELIMITER ',' CSV HEADER;
