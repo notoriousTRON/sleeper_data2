@@ -1,5 +1,5 @@
---COPY 
---(
+COPY 
+(
 SELECT
 	u.display_name
 	,CONCAT('t',tr.transaction_id) AS transaction_id
@@ -23,5 +23,5 @@ LEFT JOIN
 	players_tbl pl
 ON
 	tr.player_id = pl.player_id
---) TO 'C:\Users\Dave\Desktop\projects\sleeper_data\data\all_transactions.csv'
---   DELIMITER ',' CSV HEADER;
+) TO 'C:\projects\sleeper_data\data\all_transactions.csv'
+   DELIMITER ',' CSV HEADER;

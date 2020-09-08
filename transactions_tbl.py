@@ -32,7 +32,9 @@ def add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transact
                                             year,week,status_date,create_date,
                                             waiver_bid_ammount,transaction_status,
                                             roster_id,player_id,add_drop,asset_type,faab_ammount) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (tn_rost_plyr_id) DO NOTHING
+                            ;"""
     cursor.execute(insert_query, (tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                     year,week,status_date,create_date,
                                     waiver_bid_ammount,transaction_status,
