@@ -8,6 +8,8 @@ SELECT
 	,t.status_date
 	,t.asset_type
 	,t.player_id
+	,t.add_drop
+	,t.faab_ammount
 	,u.display_name
 	,u.join_date
 	,u.leave_date
