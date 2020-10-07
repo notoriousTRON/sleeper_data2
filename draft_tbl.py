@@ -25,8 +25,12 @@ def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO 
-                            draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                            draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,
+                                            overall_pick_no,user_id,roster_id,player_id) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (draft_player_key) 
+                            DO NOTHING
+                                """
     cursor.execute(insert_query, (draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id))
     db.commit()
     cursor.close()

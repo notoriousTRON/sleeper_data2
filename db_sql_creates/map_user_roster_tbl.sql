@@ -1,9 +1,9 @@
 --DROP TABLE IF EXISTS map_user_roster_tbl;
 --CREATE TABLE map_user_roster_tbl AS
-INSERT INTO temp_tbl(year,year_user_id,user_id,roster_id,display_name,team_name)
+INSERT INTO map_user_roster_tbl
 SELECT
-	'2019' AS year
-    ,CONCAT('2019',b.user_id) AS year_user_id
+	'2020' AS year
+    ,CONCAT('2020',b.user_id) AS year_user_id
 	,b.user_id
     ,b.roster_id
     ,b.display_name

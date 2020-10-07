@@ -2,14 +2,14 @@
 
 #boiler plate & imports
 import os
-os.chdir('P:\Projects\Sleeper_data')
+os.chdir(r'C:\projects\sleeper_data\modules')
 import requests
 import pandas as pd
 import psycopg2 as ps
 from pandas.io.json import json_normalize
-import modules.open_connection
+import open_connection
 import references
-#from references import *
+from datetime import datetime
 
 def drop_table(tbl_name):
     db = open_connection.open_connection()
@@ -24,7 +24,9 @@ def drop_table(tbl_name):
 def refresh_user_data(display_name,league_id,user_id,team_name):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = "INSERT INTO users_tbl(display_name, league_id, user_id, team_name) VALUES (%s, %s, %s, %s)"
+    insert_query = """INSERT INTO users_tbl(display_name, league_id, user_id, team_name) 
+                            VALUES (%s, %s, %s, %s)
+                            ON CONFLICT (user_id) DO UPDATE SET display_name=users_tbl.display_name, team_name=users_tbl.team_name"""
     cursor.execute(insert_query, (display_name, league_id, user_id, team_name))
     db.commit()
     cursor.close()

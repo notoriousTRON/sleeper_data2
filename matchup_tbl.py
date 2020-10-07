@@ -2,13 +2,14 @@
 
 #boiler plate & imports
 import os
-os.chdir('P:\Projects\Sleeper_data\modules')
+os.chdir(r'C:\projects\sleeper_data\modules')
 import requests
 import pandas as pd
 import psycopg2 as ps
 from pandas.io.json import json_normalize
 import open_connection
 import references
+from datetime import datetime
 
 def drop_table(tbl_name):
     db = open_connection.open_connection()
@@ -24,7 +25,10 @@ def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,sta
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO matchups_tbl(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (matchup_rost_key) 
+                            DO NOTHING
+                            """
     cursor.execute(insert_query, (matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points))
     db.commit()
     cursor.close()
@@ -35,7 +39,10 @@ def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matc
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO matchups_plr_tbl(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (matchup_rost_plr_key) 
+                            DO NOTHING
+                            """
     cursor.execute(insert_query, (matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter))
     db.commit()
     cursor.close()
@@ -44,8 +51,8 @@ def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matc
 
 l_id = references.league_id()
 
-year = 2019
-week = 16
+year = 2020
+week = 1
 '''
 drop_table("matchups_tbl")
 drop_table("matchups_plr_tbl")

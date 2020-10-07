@@ -34,7 +34,26 @@ def truncate_table(tbl_name):
 def refresh_player_data(player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = "INSERT INTO players_tbl(player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s,%s, %s, %s, %s, %s)"
+    insert_query = """INSERT INTO players_tbl(player_id,position,depth_chart_position,fantasy_positions,
+                                                first_name,last_name,full_name,years_exp,status,birth_date,
+                                                college,height,weight,age) 
+                    VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s,%s, %s, %s, %s, %s)
+                    ON CONFLICT (player_id) 
+                    DO UPDATE SET 
+                        position=players_tbl.position,
+                        depth_chart_position=players_tbl.depth_chart_position,
+                        fantasy_positions=players_tbl.fantasy_positions,
+                        first_name=players_tbl.first_name,
+                        last_name=players_tbl.last_name,
+                        full_name=players_tbl.full_name,
+                        years_exp=players_tbl.years_exp,
+                        status=players_tbl.status,
+                        birth_date=players_tbl.birth_date,
+                        college=players_tbl.college,
+                        height=players_tbl.height,
+                        weight=players_tbl.weight,
+                        age=players_tbl.age
+                    """
     cursor.execute(insert_query, (player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age))
     db.commit()
     cursor.close()
