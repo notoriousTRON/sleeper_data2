@@ -1,16 +1,16 @@
+--DROP VIEW draft_history_view;
 CREATE VIEW draft_history_view AS
-SELECT
+SELECT 
 	d.draft_year
 	,d.draft_type
 	,dor.draft_order_type
 	,d.round
 	,d.pick_no
 	,d.overall_pick_no
-	,u1.display_name AS picking_owner_name
+	,u1.display_name
 	,u.display_name AS original_pick_owner
 	--,dor.* --don't need the info
 	--,dd.* --don't need the info
-	,u.display_name
 FROM 
 	--draft_dates_tbl 
 	draft_tbl d
@@ -19,7 +19,7 @@ LEFT JOIN
 ON
 	d.draft_year = dor.draft_year AND
 	d.draft_type = dor.draft_type AND
-	d.roster_id = dor.roster_id
+	d.pick_no = dor.pick_no
 LEFT JOIN
 	draft_dates_tbl dd
 ON
@@ -53,3 +53,4 @@ LEFT JOIN
 ON
 	d.roster_id = u1.roster_id AND
 	dd.draft_date BETWEEN u1.join_date1 AND u1.leave_date1
+ORDER BY d.draft_year, CAST(d.overall_pick_no AS INT)
