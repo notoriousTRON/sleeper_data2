@@ -7,8 +7,10 @@ SELECT
 	,d.round
 	,d.pick_no
 	,d.overall_pick_no
+	,u1.user_id
 	,u1.display_name
-	,u.display_name AS original_pick_owner
+	,u.user_id AS original_pick_user_id
+	,u.display_name AS original_pick_display_name
 	,d.player_id
 	,p.position
 	,p.first_name
