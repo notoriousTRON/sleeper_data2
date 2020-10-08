@@ -1,4 +1,4 @@
---DROP VIEW draft_history_view;
+DROP VIEW draft_history_view;
 CREATE VIEW draft_history_view AS
 SELECT 
 	d.draft_year
@@ -9,6 +9,12 @@ SELECT
 	,d.overall_pick_no
 	,u1.display_name
 	,u.display_name AS original_pick_owner
+	,d.player_id
+	,p.position
+	,p.first_name
+	,p.last_name
+	,p.full_name
+	,p.years_exp
 	--,dor.* --don't need the info
 	--,dd.* --don't need the info
 FROM 
@@ -53,4 +59,8 @@ LEFT JOIN
 ON
 	d.roster_id = u1.roster_id AND
 	dd.draft_date BETWEEN u1.join_date1 AND u1.leave_date1
+LEFT JOIN
+	players_tbl p
+ON
+	d.player_id = p.player_id
 ORDER BY d.draft_year, CAST(d.overall_pick_no AS INT)
