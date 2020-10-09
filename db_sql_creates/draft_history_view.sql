@@ -9,8 +9,11 @@ SELECT
 	,d.overall_pick_no
 	,u1.user_id
 	,u1.display_name
+	,u1.roster_id
 	,u.user_id AS original_pick_user_id
 	,u.display_name AS original_pick_display_name
+	,u.roster_id AS original_pick_roster_id
+	,u.roster_id||'pk_'||d.round||'_'||d.draft_year AS pick_id
 	,d.player_id
 	,p.position
 	,p.first_name
