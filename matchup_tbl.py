@@ -24,9 +24,10 @@ def drop_table(tbl_name):
 def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = """INSERT INTO matchups_tbl(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                            ON CONFLICT (matchup_rost_key) 
+    insert_query = """INSERT INTO matchups_tbl(matchup_rost_key,year,week,matchup_id,
+                                                roster_id,players,starters,points,matchup_start_date) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (matchup_rost_key)
                             DO NOTHING
                             """
     cursor.execute(insert_query, (matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points))
@@ -65,6 +66,7 @@ matchup_create = """
     players character(255) ARRAY,
     starters character(255) ARRAY,
     points float(1),
+    matchup_start_date date,
     primary key(matchup_rost_key)
     )
     """
@@ -91,11 +93,12 @@ db.commit()
 cursor.close()
 db.close()
 '''
-def pull_matchups(year,week):
+def pull_matchups(year,week,tnf_date):
     matchup = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/matchups/"+str(week))
     matchup_json = matchup.json()
     matchup_data = pd.DataFrame(matchup_json)
-
+    matchup_start_date = tnf_date
+    
     for i in range(0,len(matchup_json)):
         roster_id = matchup_json[i]['roster_id']
         matchup_id = matchup_json[i]['matchup_id']
@@ -115,7 +118,7 @@ def pull_matchups(year,week):
         else:
             r_id = str(roster_id)
         matchup_rost_key = str(year)+wk+m_id+r_id
-        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points)
+        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,matchup_start_date)
         for j in matchup_json[i]['players']:
             Player_id = j
             is_starter = j in matchup_json[i]['starters']
