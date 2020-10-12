@@ -11,6 +11,7 @@ SELECT
 	,CASE WHEN pass.posteam IS NOT NULL THEN pass.posteam
 		  WHEN rush.posteam IS NOT NULL THEN rush.posteam
 		  WHEN rec.posteam IS NOT NULL THEN rec.posteam
+		  WHEN kick.posteam IS NOT NULL THEN kick.posteam
 		  END AS team
 	,p.position
 	,p.first_name
