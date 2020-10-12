@@ -1,12 +1,17 @@
 --SELECT * FROM data.player_yr_week_view WHERE week IN ('1','2','3','4')--players 30052;
+--Still needs kicker and def data to be added
 DROP TABLE IF EXISTS data.game_log_tbl;
 CREATE TABLE data.game_log_tbl AS
 SELECT
-	pass.year||pass.week_padded||p.player_id AS week_player_id
-	,pass.year
-	,pass.week
+	p.year||p.week||p.player_id AS week_player_id
+	,p.year
+	,p.week
 	,p.player_id
-	,pass.posteam AS team
+	,p.gsis_id
+	,CASE WHEN pass.posteam IS NOT NULL THEN pass.posteam
+		  WHEN rush.posteam IS NOT NULL THEN rush.posteam
+		  WHEN rec.posteam IS NOT NULL THEN rec.posteam
+		  END AS team
 	,p.position
 	,p.first_name
 	,p.last_name
@@ -33,22 +38,23 @@ SELECT
 	,rec.rec_fum
 	,rec.rec_fum_lost
 	,rec.rec_2pt
+	,pass.pass_yd_pts + pass.pass_td_pts + pass.pass_int_pts + pass.fum_lost_pts_pts + pass.pass_2pt_pts AS any_pass_pts
+	,rush.rush_yd_pts + rush.rush_td_pts + rush.fum_lost_pts_pts + rush.rush_2pt_pts AS any_rush_pts
+	,rec.rec_pts + rec.rec_yd_pts + rec.rec_td_pts + rec.fum_lost_pts_pts + rec.rec_2pt_pts AS any_rec_pts
 FROM
 	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4)) p
 LEFT JOIN
 	data.passing_stats_view pass
 ON
 	p.gsis_id = pass.passer_id AND
-	p.year = pass.year AND p.week = pass.week
+	p.year = pass.year AND CAST(p.week AS INT) = CAST(pass.week AS INT)
 LEFT JOIN	
 	data.rushing_stats_view rush
 ON
 	p.gsis_id = rush.rusher_player_id AND
-	pass.year = rush.year AND pass.week = rush.week
+	p.year = rush.year AND CAST(p.week AS INT) = CAST(rush.week AS INT)
 LEFT JOIN
 	data.receiving_stats_view rec
 ON
 	p.gsis_id = rec.receiver_player_id AND
-	pass.year = rec.year AND pass.week = rec.week
-WHERE
-	pass.year||pass.week_padded||p.player_id IS NOT NULL
+	p.year = rec.year AND CAST(p.week AS INT) = CAST(rec.week AS INT)

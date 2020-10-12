@@ -31,7 +31,7 @@ ON
 CREATE VIEW data.player_yr_week_view AS
 SELECT
 	p.player_id
-	,CASE WHEN p.gsis_id = 'None' THEN fast.gsis_id ELSE NULL END AS gsis_id
+	,CASE WHEN p.gsis_id = 'None' THEN fast.gsis_id ELSE p.gsis_id END AS gsis_id
 	,p.gsis_id AS sleeper_gsis_id
 	,p.sportradar_id
 	,yw.year
@@ -56,4 +56,3 @@ LEFT JOIN
 	nflfast.pbp_roster2020_tbl fast
 ON
 	p.sportradar_id = fast.sportradar_id
-;
