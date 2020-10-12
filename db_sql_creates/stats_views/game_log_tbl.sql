@@ -1,4 +1,6 @@
 --SELECT * FROM data.player_yr_week_view WHERE week IN ('1','2','3','4')--players 30052;
+DROP TABLE IF EXISTS data.game_log_tbl;
+CREATE TABLE data.game_log_tbl AS
 SELECT
 	pass.year||pass.week_padded||p.player_id AS week_player_id
 	,pass.year
@@ -24,6 +26,13 @@ SELECT
 	,rush.rush_2pt
 	,pass.pass_fum + rush.rush_fum AS fum
 	,pass.pass_fum_lost + rush.rush_fum_lost fum_lost
+	,rec.rec_tgt
+	,rec.rec
+	,rec.rec_yd
+	,rec.rec_td
+	,rec.rec_fum
+	,rec.rec_fum_lost
+	,rec.rec_2pt
 FROM
 	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4)) p
 LEFT JOIN
@@ -36,5 +45,10 @@ LEFT JOIN
 ON
 	p.gsis_id = rush.rusher_player_id AND
 	pass.year = rush.year AND pass.week = rush.week
---WHERE
---	pass.year||pass.week_padded||p.player_id = '202004167'
+LEFT JOIN
+	data.receiving_stats_view rec
+ON
+	p.gsis_id = rec.receiver_player_id AND
+	pass.year = rec.year AND pass.week = rec.week
+WHERE
+	pass.year||pass.week_padded||p.player_id IS NOT NULL
