@@ -1,5 +1,5 @@
 --SELECT * FROM data.player_yr_week_view WHERE week IN ('1','2','3','4')--players 30052;
---Still needs kicker and def data to be added
+--Still needs def data to be added
 DROP TABLE IF EXISTS data.game_log_tbl;
 CREATE TABLE data.game_log_tbl AS
 SELECT
@@ -38,9 +38,20 @@ SELECT
 	,rec.rec_fum
 	,rec.rec_fum_lost
 	,rec.rec_2pt
+	,kick.fg_attempt
+	,kick.fg_missed
+	,kick.fg_0_19_made
+	,kick.fg_20_29_made
+	,kick.fg_30_39_made
+	,kick.fg_40_49_made
+	,kick.fg_50_made
+	,kick.xp_attempt
+	,kick.xp_made
+	,kick.xp_missed
 	,pass.pass_yd_pts + pass.pass_td_pts + pass.pass_int_pts + pass.fum_lost_pts_pts + pass.pass_2pt_pts AS any_pass_pts
 	,rush.rush_yd_pts + rush.rush_td_pts + rush.fum_lost_pts_pts + rush.rush_2pt_pts AS any_rush_pts
 	,rec.rec_pts + rec.rec_yd_pts + rec.rec_td_pts + rec.fum_lost_pts_pts + rec.rec_2pt_pts AS any_rec_pts
+	,fg_missed_pts + fg_0_19_pts + fg_20_29_pts + fg_30_39_pts + fg_40_49_pts + fg_50_pts + xp_pts + xp_missed_pts AS any_k_pts
 FROM
 	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4)) p
 LEFT JOIN
@@ -58,3 +69,8 @@ LEFT JOIN
 ON
 	p.gsis_id = rec.receiver_player_id AND
 	p.year = rec.year AND CAST(p.week AS INT) = CAST(rec.week AS INT)
+LEFT JOIN
+	data.kicking_stats_view kick
+ON
+	p.gsis_id = kick.kicker_player_id AND
+	p.year = kick.year AND CAST(p.week AS INT) = CAST(kick.week AS INT)
