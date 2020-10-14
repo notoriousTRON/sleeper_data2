@@ -1,5 +1,5 @@
-DROP VIEW IF EXISTS manager_effectiveness_view;
-CREATE VIEW manager_effectiveness_view AS
+DROP VIEW IF EXISTS data.manager_effectiveness_view;
+CREATE VIEW data.manager_effectiveness_view AS
 SELECT
     inr4.player_id
     ,inr4.year
@@ -53,21 +53,30 @@ FROM
                     --,CASE WHEN flex = 'FLEX' THEN
                      --       RANK() OVER(PARTITION BY mp.year, mp.week, usr.display_name, pl.flex ORDER BY st.any_pts DESC) END AS flex_rank
                 FROM 
-                    matchups_plr_tbl mp
+                    sleeper_raw.matchups_plr_tbl mp
                 LEFT JOIN
-                    stats_tbl st
+					(SELECT 
+						*
+						,(CASE WHEN st.any_pass_pts IS NULL THEN 0 ELSE st.any_pass_pts END)+
+						(CASE WHEN st.any_rush_pts IS NULL THEN 0 ELSE st.any_rush_pts END)+
+						(CASE WHEN st.any_rec_pts IS NULL THEN 0 ELSE st.any_rec_pts END)+
+						(CASE WHEN st.any_def_pts IS NULL THEN 0 ELSE st.any_def_pts END)+
+						(CASE WHEN st.any_k_pts IS NULL THEN 0 ELSE st.any_k_pts END) AS any_pts
+					FROM
+						data.game_log_tbl st) st
                 ON
-                    mp.player_id = st.player_id AND
-                    mp.year = st.year AND
-                    mp.week = st.week
+					mp.player_id = st.player_id AND
+					CAST(mp.year AS INT) = CAST(st.year AS INT) AND
+					CAST(mp.week AS INT) = CAST(st.week AS INT)
                 LEFT JOIN
-                    (SELECT *, CASE WHEN position IN ('RB','WR','TE') THEN 'FLEX' ELSE NULL END AS flex FROM players_tbl) pl
+                    (SELECT *, CASE WHEN position IN ('RB','WR','TE') THEN 'FLEX' ELSE NULL END AS flex FROM sleeper_raw.players_tbl) pl
                 ON
                     mp.player_id = pl.player_id
                 LEFT JOIN
-                    map_user_roster_tbl usr
+                    stg.map_user_roster_tbl usr
                 ON
-                    mp.roster_id = usr.roster_id
+                    mp.roster_id = usr.roster_id AND
+					mp.year = usr.year
                 ) inr
             ) inr2
         ) inr3

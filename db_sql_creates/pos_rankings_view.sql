@@ -1,35 +1,39 @@
-DROP VIEW IF EXISTS pos_rankings_view;
-CREATE VIEW pos_rankings_view AS
+DROP VIEW IF EXISTS data.weekly_position_scoring_view;
+CREATE VIEW data.weekly_position_scoring_view AS
 SELECT
-	st.year
-	,st.player_id
-    ,CONCAT(pl.first_name,' ',pl.last_name) AS full_name
-    ,pl.position
-    --,pl.fantasy_positions
-    ,SUM(st.any_pts) AS total_pts
-    ,CASE WHEN pl.position LIKE '%QB%' THEN RANK() OVER(PARTITION BY st.year, pl.position ORDER BY SUM(st.any_pts) DESC) ELSE NULL END AS QB_rank
-    ,CASE WHEN pl.position LIKE '%RB%' THEN RANK() OVER(PARTITION BY st.year, pl.position ORDER BY SUM(st.any_pts) DESC) ELSE NULL END AS RB_rank
-    ,CASE WHEN pl.position LIKE '%WR%' THEN RANK() OVER(PARTITION BY st.year, pl.position ORDER BY SUM(st.any_pts) DESC) ELSE NULL END AS WR_rank
-    ,CASE WHEN pl.position LIKE '%TE%' THEN RANK() OVER(PARTITION BY st.year, pl.position ORDER BY SUM(st.any_pts) DESC) ELSE NULL END AS TE_rank
-    ,CASE WHEN pl.position LIKE '%DEF%' THEN RANK() OVER(PARTITION BY st.year, pl.position ORDER BY SUM(st.any_pts) DESC) ELSE NULL END AS DEF_rank
-    ,CASE WHEN pl.position LIKE '%K%' THEN RANK() OVER(PARTITION BY st.year, pl.position ORDER BY SUM(st.any_pts) DESC) ELSE NULL END AS K_rank
+	year
+    ,week
+    ,position
+    ,MAX(
+        CASE WHEN position = 'QB' AND qb_rank > 12 THEN total_pts
+        	  WHEN position = 'RB' AND rb_rank > 24 THEN total_pts 
+        	  WHEN position = 'WR' AND wr_rank > 36 THEN total_pts
+        	  WHEN position = 'TE' AND te_rank > 12 THEN total_pts
+        	  WHEN position = 'DEF' AND def_rank > 12 THEN total_pts
+        	  WHEN position = 'K' AND k_rank > 12 THEN total_pts
+        ELSE NULL END
+        ) AS replacement
+    ,AVG(
+        CASE WHEN position = 'QB' AND qb_rank <= 12 THEN total_pts 
+        	  WHEN position = 'RB' AND rb_rank <= 24 THEN total_pts 
+        	  WHEN position = 'WR' AND wr_rank <= 36 THEN total_pts
+        	  WHEN position = 'TE' AND te_rank <= 12 THEN total_pts
+        	  WHEN position = 'DEF' AND def_rank <= 12 THEN total_pts
+        	  WHEN position = 'K' AND k_rank <= 12 THEN total_pts
+        ELSE NULL END
+        ) AS avg_starter
+    ,STDDEV(
+        CASE WHEN position = 'QB' AND qb_rank <= 12 THEN total_pts 
+        	  WHEN position = 'RB' AND rb_rank <= 24 THEN total_pts 
+        	  WHEN position = 'WR' AND wr_rank <= 36 THEN total_pts
+        	  WHEN position = 'TE' AND te_rank <= 12 THEN total_pts
+        	  WHEN position = 'DEF' AND def_rank <= 12 THEN total_pts
+        	  WHEN position = 'K' AND k_rank <= 12 THEN total_pts
+        ELSE NULL END
+        ) AS sd_starter
 FROM
-	stats_tbl st
-LEFT JOIN
-	--players_tbl pl
-	(SELECT player_id, first_name, last_name, CASE WHEN position = 'FB' THEN 'RB' ELSE position END AS position ,position as orig_pos FROM players_tbl) pl
-ON
-	st.player_id = pl.player_id
-WHERE
-	--st.year = '2019' AND
-    st.week IN ('1','2','3','4','5','6','7','8','9',
-                    '10','11','12','13')
-    AND pl.position IN ('QB','RB','WR','TE','DEF','K')
+	data.pos_rankings_weekly_view
 GROUP BY
-	st.year
-	,st.player_id
-    ,pl.position
-    --,pl.fantasy_positions
-    ,CONCAT(pl.first_name,' ',pl.last_name)
-
-	
+	year
+    ,week
+    ,position

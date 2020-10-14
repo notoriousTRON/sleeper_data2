@@ -1,7 +1,9 @@
 --SELECT * FROM data.player_yr_week_view WHERE week IN ('1','2','3','4')--players 30052;
 --Still needs def data to be added
-DROP TABLE IF EXISTS data.game_log_tbl;
-CREATE TABLE data.game_log_tbl AS
+--DROP TABLE IF EXISTS data.game_log_tbl;
+--CREATE OR REPLACE TABLE data.game_log_tbl AS
+TRUNCATE TABLE data.game_log_tbl;
+INSERT INTO data.game_log_tbl (
 SELECT
 	p.year||p.week||p.player_id AS week_player_id
 	,p.year
@@ -9,10 +11,10 @@ SELECT
 	,p.player_id
 	,p.gsis_id
 	,CASE WHEN pass.posteam IS NOT NULL THEN pass.posteam
-		  WHEN rush.posteam IS NOT NULL THEN rush.posteam
-		  WHEN rec.posteam IS NOT NULL THEN rec.posteam
-		  WHEN kick.posteam IS NOT NULL THEN kick.posteam
-		  WHEN def.team IS NOT NULL THEN def.team
+		  --WHEN rush.posteam IS NOT NULL THEN rush.posteam
+		  --WHEN rec.posteam IS NOT NULL THEN rec.posteam
+		  --WHEN kick.posteam IS NOT NULL THEN kick.posteam
+		  --WHEN def.team IS NOT NULL THEN def.team
 		  END AS team
 	,p.position
 	,p.first_name
@@ -76,33 +78,35 @@ SELECT
 	,rec.rec_pts + rec.rec_yd_pts + rec.rec_td_pts + rec.fum_lost_pts_pts + rec.rec_2pt_pts AS any_rec_pts
 	,def.def_sacks_pts + def.def_int_pts + def.def_fr_pts + def.def_blocked_kick_pts + def.def_st_td_pts + def.st_td_pts +
 		def.def_pa_0_pts + def.def_pa_1_6_pts + def.def_pa_7_13_pts + def.def_pa_14_20_pts + def.def_pa_21_27_pts + 
-		def.def_pa_28_34_pts + def.def_pa_35_pts AS any_def_points
+		def.def_pa_28_34_pts + def.def_pa_35_pts AS any_def_pts
 	,fg_missed_pts + fg_0_19_pts + fg_20_29_pts + fg_30_39_pts + fg_40_49_pts + fg_50_pts + xp_pts + xp_missed_pts AS any_k_pts
 FROM
-	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4)) p
+	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4,5--,6,7,8,9,10,11,12,13,14,15,16
+																	   )) p
 LEFT JOIN
 	data.passing_stats_view pass
 ON
 	p.gsis_id = pass.passer_id AND
-	p.year = pass.year AND CAST(p.week AS INT) = CAST(pass.week AS INT)
+	CAST(p.year AS INT) = CAST(pass.year AS INT) AND CAST(p.week AS INT) = CAST(pass.week AS INT)
 LEFT JOIN	
 	data.rushing_stats_view rush
 ON
 	p.gsis_id = rush.rusher_player_id AND
-	p.year = rush.year AND CAST(p.week AS INT) = CAST(rush.week AS INT)
+	CAST(p.year AS INT) = CAST(rush.year AS INT) AND CAST(p.week AS INT) = CAST(rush.week AS INT)
 LEFT JOIN
 	data.receiving_stats_view rec
 ON
 	p.gsis_id = rec.receiver_player_id AND
-	p.year = rec.year AND CAST(p.week AS INT) = CAST(rec.week AS INT)
+	CAST(p.year AS INT) = CAST(rec.year AS INT) AND CAST(p.week AS INT) = CAST(rec.week AS INT)
 LEFT JOIN
 	data.kicking_stats_view kick
 ON
 	p.gsis_id = kick.kicker_player_id AND
-	p.year = kick.year AND CAST(p.week AS INT) = CAST(kick.week AS INT)
+	CAST(p.year AS INT) = CAST(kick.year AS INT) AND CAST(p.week AS INT) = CAST(kick.week AS INT)
 LEFT JOIN
 	data.def_stats_view def
 ON
 	p.position = 'DEF' AND
 	p.player_id = def.team AND
-	p.year = def.year AND CAST(p.week AS INT) = CAST(def.week AS INT)
+	CAST(p.year AS INT) = CAST(def.year AS INT) AND CAST(p.week AS INT) = CAST(def.week AS INT)
+)

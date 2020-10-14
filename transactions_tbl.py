@@ -28,7 +28,7 @@ def add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transact
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO 
-                            transactions_tbl(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+                            sleeper_raw.transactions_tbl(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                             year,week,status_date,create_date,
                                             waiver_bid_ammount,transaction_status,
                                             roster_id,player_id,add_drop,asset_type,faab_ammount) 
@@ -51,9 +51,9 @@ l_id = references.league_id()
 
 #only use the next block if you plan to reset the entire table
 '''
-drop_table("transactions_tbl")
+drop_table("sleeper_raw.transactions_tbl")
 transaction_create = """
-    CREATE TABLE transactions_tbl
+    CREATE TABLE sleeper_raw.transactions_tbl
     (
     tn_rost_plyr_id character(255),
     transaction_id character(255),

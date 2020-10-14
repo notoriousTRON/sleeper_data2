@@ -1,5 +1,5 @@
-DROP VIEW IF EXISTS matchup_wl_view;
-CREATE VIEW matchup_wl_view AS
+DROP VIEW IF EXISTS data.matchup_wl_view;
+CREATE VIEW data.matchup_wl_view AS
 SELECT
     *
     ,CASE WHEN m3.points > m3.opp_points THEN 1 ELSE 0 END AS Win
@@ -14,21 +14,23 @@ FROM
         ,m2.display_name AS opp_name
         ,m2.points AS opp_points
     FROM
-        matchups_tbl mt
+        sleeper_raw.matchups_tbl mt
     LEFT JOIN
-        map_user_roster_tbl u
+        stg.map_user_roster_tbl u
     ON
-        mt.roster_id = u.roster_id
+        mt.roster_id = u.roster_id AND
+		mt.year = u.year
     LEFT JOIN
         (SELECT
             u2.display_name
             ,mt2.*
         FROM
-            matchups_tbl mt2
+            sleeper_raw.matchups_tbl mt2
         LEFT JOIN
-            map_user_roster_tbl u2
+            stg.map_user_roster_tbl u2
         ON
-            mt2.roster_id = u2.roster_id) m2
+            mt2.roster_id = u2.roster_id AND
+			mt2.year = u2.year) m2
     ON
         mt.matchup_id = m2.matchup_id AND
         mt.roster_id != m2.roster_id AND

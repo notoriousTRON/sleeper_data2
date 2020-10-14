@@ -1,10 +1,15 @@
-DROP TABLE data.year_week_tbl CASCADE;
-CREATE TABLE data.year_week_tbl AS
+TRUNCATE TABLE data.year_week_tbl; --CASCADE;
+INSERT INTO data.year_week_tbl (
 SELECT
-	 a.*
-	 ,b.*
+	a.*
+	,b.*
+	,a.year||b.week AS yyyymm
 FROM
-	 (SELECT CAST('2020' AS text) AS year) a
+	 (
+	SELECT CAST('2019' AS text) AS year
+	UNION ALL
+	SELECT CAST('2020' AS text) AS year
+	 ) a
 LEFT JOIN
 	 (
 	SELECT '01' AS week
@@ -25,10 +30,10 @@ LEFT JOIN
 	UNION ALL SELECT '16' AS week
 	 ) b
 ON
-	1=1
+	1=1)
 ;
 
-CREATE VIEW data.player_yr_week_view AS
+CREATE OR REPLACE VIEW data.player_yr_week_view AS
 SELECT
 	p.player_id
 	,CASE WHEN p.gsis_id = 'None' THEN fast.gsis_id ELSE p.gsis_id END AS gsis_id

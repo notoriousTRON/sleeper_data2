@@ -1,5 +1,5 @@
-DROP VIEW IF EXISTS weekly_position_scoring_view;
-CREATE VIEW weekly_position_scoring_view AS
+DROP VIEW IF EXISTS data.weekly_position_scoring_view;
+CREATE VIEW data.weekly_position_scoring_view AS
 SELECT
 	year
     ,week
@@ -37,4 +37,3 @@ GROUP BY
 	year
     ,week
     ,position
-
