@@ -12,6 +12,7 @@ SELECT
 		  WHEN rush.posteam IS NOT NULL THEN rush.posteam
 		  WHEN rec.posteam IS NOT NULL THEN rec.posteam
 		  WHEN kick.posteam IS NOT NULL THEN kick.posteam
+		  WHEN def.team IS NOT NULL THEN def.team
 		  END AS team
 	,p.position
 	,p.first_name
@@ -49,9 +50,33 @@ SELECT
 	,kick.xp_attempt
 	,kick.xp_made
 	,kick.xp_missed
+	,def.yds_allowed
+	,def.pts_allowed
+	,def.def_sacks
+	,def.def_sacks_pts
+	,def.def_int
+	,def.def_int_pts
+	,def.def_fum
+	,def.def_fr_pts
+	,def.def_blocked
+	,def.def_blocked_kick_pts
+	,def.def_td
+	,def.def_st_td_pts
+	,def.st_td
+	,def.st_td_pts
+	,def.def_pa_0_pts
+	,def.def_pa_1_6_pts
+	,def.def_pa_7_13_pts
+	,def.def_pa_14_20_pts
+	,def.def_pa_21_27_pts
+	,def.def_pa_28_34_pts
+	,def.def_pa_35_pts
 	,pass.pass_yd_pts + pass.pass_td_pts + pass.pass_int_pts + pass.fum_lost_pts_pts + pass.pass_2pt_pts AS any_pass_pts
 	,rush.rush_yd_pts + rush.rush_td_pts + rush.fum_lost_pts_pts + rush.rush_2pt_pts AS any_rush_pts
 	,rec.rec_pts + rec.rec_yd_pts + rec.rec_td_pts + rec.fum_lost_pts_pts + rec.rec_2pt_pts AS any_rec_pts
+	,def.def_sacks_pts + def.def_int_pts + def.def_fr_pts + def.def_blocked_kick_pts + def.def_st_td_pts + def.st_td_pts +
+		def.def_pa_0_pts + def.def_pa_1_6_pts + def.def_pa_7_13_pts + def.def_pa_14_20_pts + def.def_pa_21_27_pts + 
+		def.def_pa_28_34_pts + def.def_pa_35_pts AS any_def_points
 	,fg_missed_pts + fg_0_19_pts + fg_20_29_pts + fg_30_39_pts + fg_40_49_pts + fg_50_pts + xp_pts + xp_missed_pts AS any_k_pts
 FROM
 	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4)) p
@@ -75,3 +100,9 @@ LEFT JOIN
 ON
 	p.gsis_id = kick.kicker_player_id AND
 	p.year = kick.year AND CAST(p.week AS INT) = CAST(kick.week AS INT)
+LEFT JOIN
+	data.def_stats_view def
+ON
+	p.position = 'DEF' AND
+	p.player_id = def.team AND
+	p.year = def.year AND CAST(p.week AS INT) = CAST(def.week AS INT)

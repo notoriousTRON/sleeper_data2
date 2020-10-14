@@ -21,16 +21,20 @@ def drop_table(tbl_name):
     db.close()
     return
 
-def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points):
+def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,matchup_start_date):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = """INSERT INTO matchups_tbl(matchup_rost_key,year,week,matchup_id,
+    insert_query = """INSERT INTO sleeper_raw.matchups_tbl(matchup_rost_key,year,week,matchup_id,
                                                 roster_id,players,starters,points,matchup_start_date) 
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT (matchup_rost_key)
-                            DO NOTHING
+                            DO UPDATE SET
+                                points = Excluded.points,
+                                matchup_start_date = Excluded.matchup_start_date,
+                                starters = Excluded.starters,
+                                players = Excluded.players
                             """
-    cursor.execute(insert_query, (matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points))
+    cursor.execute(insert_query, (matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,matchup_start_date))
     db.commit()
     cursor.close()
     db.close()
@@ -39,7 +43,7 @@ def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,sta
 def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = """INSERT INTO matchups_plr_tbl(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter) 
+    insert_query = """INSERT INTO sleeper_raw.matchups_plr_tbl(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter) 
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT (matchup_rost_plr_key) 
                             DO NOTHING
@@ -53,10 +57,10 @@ def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matc
 l_id = references.league_id()
 
 '''
-drop_table("matchups_tbl")
-drop_table("matchups_plr_tbl")
+drop_table("sleeper_raw.matchups_tbl")
+drop_table("sleeper_raw.matchups_plr_tbl")
 matchup_create = """
-    CREATE TABLE matchups_tbl
+    CREATE TABLE sleeper_raw.matchups_tbl
     (
     matchup_rost_key character(20),
     year character(4),
@@ -71,7 +75,7 @@ matchup_create = """
     )
     """
 matchup_plr_create = """
-    CREATE TABLE matchups_plr_tbl
+    CREATE TABLE sleeper_raw.matchups_plr_tbl
     (
     matchup_rost_plr_key character(30),
     matchup_rost_key character(20),
@@ -118,7 +122,7 @@ def pull_matchups(year,week,tnf_date):
         else:
             r_id = str(roster_id)
         matchup_rost_key = str(year)+wk+m_id+r_id
-        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,matchup_start_date)
+        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,tnf_date)
         for j in matchup_json[i]['players']:
             Player_id = j
             is_starter = j in matchup_json[i]['starters']
