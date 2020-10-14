@@ -81,7 +81,7 @@ SELECT
 		def.def_pa_28_34_pts + def.def_pa_35_pts AS any_def_pts
 	,fg_missed_pts + fg_0_19_pts + fg_20_29_pts + fg_30_39_pts + fg_40_49_pts + fg_50_pts + xp_pts + xp_missed_pts AS any_k_pts
 FROM
-	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4,5--,6,7,8,9,10,11,12,13,14,15,16
+	(SELECT * FROM data.player_yr_week_view WHERE CAST(week AS int) IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 																	   )) p
 LEFT JOIN
 	data.passing_stats_view pass

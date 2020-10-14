@@ -1,41 +1,56 @@
-DROP VIEW draft_history_view;
-CREATE VIEW draft_history_view AS
-SELECT 
-	d.draft_year
-	,d.draft_type
-	,dor.draft_order_type
-	,d.round
-	,d.pick_no
-	,d.overall_pick_no
-	,u1.user_id
-	,u1.display_name
-	,u1.roster_id
-	,u.user_id AS original_pick_user_id
-	,u.display_name AS original_pick_display_name
-	,u.roster_id AS original_pick_roster_id
-	,u.roster_id||'pk_'||d.round||'_'||d.draft_year AS pick_id
-	,d.player_id
-	,p.position
+COPY 
+(
+SELECT
+	*
+FROM
+	sleeper_raw.rosters_tbl
+) TO 'C:\projects\sleeper_data\data\rosters.csv'
+DELIMITER ',' CSV HEADER;
+
+COPY 
+(
+SELECT
+	*
+FROM
+	data.draft_history_view
+) TO 'C:\projects\sleeper_data\data\draft.csv'
+DELIMITER ',' CSV HEADER;
+
+COPY 
+(
+SELECT
+	c.display_name AS creator_display_name
+	,t.transaction_id
+	,t.transaction_type
+	,t.year AS transaction_year
+	,t.week AS transaction_week
+	,t.roster_id
+	,t.status_date
+	,t.asset_type
+	,t.player_id
+	,t.add_drop
+	,t.faab_ammount
+	,t.waiver_bid_ammount
+	,t.transaction_status
+	,u.user_id
+	,u.display_name
+	,u.join_date
+	,u.leave_date
+	,p.full_name
 	,p.first_name
 	,p.last_name
-	,p.full_name
-	,p.years_exp
-	--,dor.* --don't need the info
-	--,dd.* --don't need the info
-FROM 
-	--draft_dates_tbl 
-	draft_tbl d
-LEFT JOIN
-	draft_order_tbl dor
-ON
-	d.draft_year = dor.draft_year AND
-	d.draft_type = dor.draft_type AND
-	d.pick_no = dor.pick_no
-LEFT JOIN
-	draft_dates_tbl dd
-ON
-	dor.draft_year = dd.draft_year AND
-	dor.draft_type = dd.draft_type
+	,p.position
+	,p.age
+	,p.college
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.player_id END AS picked_player_id
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.first_name END AS picked_player_first_name
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.last_name END AS picked_player_last_name
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.full_name END AS picked_player_full_name
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.round END AS eventual_pick_round
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.pick_no END AS eventual_pick_no
+	,CASE WHEN t.asset_type = 'pick' AND dr.player_id IS NULL THEN 'future pick' ELSE dr.overall_pick_no END AS eventual_overall_pick_no
+FROM
+	sleeper_raw.transactions_tbl t
 LEFT JOIN
 	(SELECT
 		user_id
@@ -46,26 +61,23 @@ LEFT JOIN
 		,CASE WHEN join_date IS NULL THEN '2019-07-01' ELSE join_date END AS join_date1
 		,CASE WHEN leave_date IS NULL THEN DATE(NOW()) ELSE leave_date END AS leave_date1
 	FROM
-		user_history_tbl) u
+		stg.user_history_tbl) u
 ON
-	dor.roster_id = u.roster_id AND
-	dd.draft_date BETWEEN u.join_date1 AND u.leave_date1
+	t.roster_id = u.roster_id AND
+	t.status_date BETWEEN join_date1 AND leave_date1
 LEFT JOIN
-	(SELECT
-		user_id
-		,roster_id
-		,display_name
-	 	,join_date
-	 	,leave_date
-		,CASE WHEN join_date IS NULL THEN '2019-07-01' ELSE join_date END AS join_date1
-		,CASE WHEN leave_date IS NULL THEN DATE(NOW()) ELSE leave_date END AS leave_date1
-	FROM
-		user_history_tbl) u1
+	sleeper_raw.players_tbl p
 ON
-	d.roster_id = u1.roster_id AND
-	dd.draft_date BETWEEN u1.join_date1 AND u1.leave_date1
+	t.player_id = p.player_id AND
+	asset_type = 'player'
 LEFT JOIN
-	players_tbl p
+	(SELECT DISTINCT user_id, display_name FROM stg.map_user_roster_tbl) c
 ON
-	d.player_id = p.player_id
-ORDER BY d.draft_year, CAST(d.overall_pick_no AS INT)
+	t.creater_user_id = c.user_id
+LEFT JOIN
+	data.draft_history_view dr
+ON
+	t.asset_type = 'pick' AND
+	t.player_id = dr.pick_id
+) TO 'C:\projects\sleeper_data\data\all_transactions.csv'
+DELIMITER ',' CSV HEADER;

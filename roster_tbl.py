@@ -23,7 +23,7 @@ def drop_table(tbl_name):
 def refresh_roster_data(User_ID,roster_id,Player_id):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = "INSERT INTO rosters_tbl(User_ID,roster_id,Player_id) VALUES (%s, %s, %s)"
+    insert_query = "INSERT INTO sleeper_raw.rosters_tbl(User_ID,roster_id,Player_id) VALUES (%s, %s, %s)"
     cursor.execute(insert_query, (User_ID,roster_id,Player_id))
     db.commit()
     cursor.close()
@@ -43,9 +43,9 @@ roster_data = pd.DataFrame(rosters_json)
 # roster_data = pd.DataFrame(rosters_json)
 # #pd.read_json(_, orient='split')
 # print(roster_data)
-drop_table("rosters_tbl")
+drop_table("sleeper_raw.osters_tbl")
 roster_create = """
-CREATE TABLE rosters_tbl
+CREATE TABLE sleeper_raw.rosters_tbl
     (
     User_Id character(255),
     roster_id character(2),
