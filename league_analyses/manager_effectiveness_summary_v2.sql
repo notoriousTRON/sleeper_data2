@@ -1,5 +1,6 @@
 SELECT
-	display_name
+	year
+	,display_name
     --,user_id
     ,SUM(points) AS total_points
     ,SUM(possible_pts) AS possible_pts
@@ -28,11 +29,12 @@ FROM (
     	,CASE WHEN RANK() OVER(PARTITION BY m.year, m.week ORDER BY mp.possible_pts DESC) <= 6 THEN 1 ELSE 0 END AS top_6_win
     	,CASE WHEN RANK() OVER(PARTITION BY m.year, m.week ORDER BY mp.possible_pts DESC) <= 6 THEN 0 ELSE 1 END AS top_6_loss
     FROM
-        matchups_tbl m
+        sleeper_raw.matchups_tbl m
     LEFT JOIN
-        map_user_roster_tbl usr
+        stg.map_user_roster_tbl usr
     ON
-        m.roster_id = usr.roster_id
+        m.roster_id = usr.roster_id AND
+        CAST(m.year AS int) = CAST(usr.year AS int)
     LEFT JOIN (
         SELECT 
             year
@@ -42,7 +44,7 @@ FROM (
             ,SUM(started_pts) AS total_pts
             ,SUM(max_pts) AS possible_pts
         FROM
-            manager_effectiveness_view
+            data.manager_effectiveness_view
         GROUP BY
             year
             ,week
@@ -51,11 +53,14 @@ FROM (
        ) mp
     ON
         usr.user_id = mp.user_id AND
-        m.year = mp.year AND
+        CAST(m.year AS int) = CAST(mp.year AS int) AND
         m.week = mp.week
    ) mp1
+WHERE
+	CAST(year AS int) = 2020
 GROUP BY
-	display_name
+	year
+	,display_name
     ,user_id
 ORDER BY
 	manager_efficency DESC
