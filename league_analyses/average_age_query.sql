@@ -4,17 +4,16 @@ SELECT
 FROM (
     SELECT
         u.display_name,
-        u.team_name,
         pl.full_name,
         pl.age
     FROM
-        users_tbl u
-    LEFT JOIN
-        rosters_tbl r
+        stg.user_history_tbl u
+    INNER JOIN
+        sleeper_raw.rosters_tbl r
     ON
         u.user_id = r.user_id
     LEFT JOIN
-        players_tbl pl
+        sleeper_raw.players_tbl pl
     ON
         r.player_id = pl.player_id
    	) i

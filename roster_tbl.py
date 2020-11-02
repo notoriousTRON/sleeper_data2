@@ -2,13 +2,14 @@
 
 #boiler plate & imports
 import os
-os.chdir('P:\Projects\Sleeper_data\modules')
+os.chdir(r'C:\projects\sleeper_data\modules')
 import requests
 import pandas as pd
 import psycopg2 as ps
 from pandas.io.json import json_normalize
 import open_connection
 import references
+from datetime import datetime
 
 def drop_table(tbl_name):
     db = open_connection.open_connection()
@@ -43,7 +44,7 @@ roster_data = pd.DataFrame(rosters_json)
 # roster_data = pd.DataFrame(rosters_json)
 # #pd.read_json(_, orient='split')
 # print(roster_data)
-drop_table("sleeper_raw.osters_tbl")
+drop_table("sleeper_raw.rosters_tbl")
 roster_create = """
 CREATE TABLE sleeper_raw.rosters_tbl
     (
