@@ -33,11 +33,18 @@ tm5 = []
 tm6 = []
 
 trials = 100000
+def reset_weights():
+    new = []
+    for w in official_weights:
+        new.append(w)
+    return new
+
+
+official_weights = [10, 7, 5, 3, 2, 1]
 
 for x in range(trials):
-
-    weights = [10, 7, 5, 3, 2, 1]
-
+    weights = reset_weights()
+    
     res = []
 
     for i in range(6):
@@ -63,15 +70,15 @@ for x in range(trials):
 
 print("the following percentages are based on ",trials," simulations")
 print("           pk1       pk2       pk3       pk4       pk5       pk6")
-print("team 1: ",results(tm1)[0]/trials," ",results(tm1)[1]/trials," ",results(tm1)[2]/trials," ",
-      results(tm1)[3]/trials," ",results(tm1)[4]/trials," ",results(tm1)[5]/trials)
-print("team 2: ",results(tm2)[0]/trials," ",results(tm2)[1]/trials," ",results(tm2)[2]/trials," ",
-      results(tm2)[3]/trials," ",results(tm2)[4]/trials," ",results(tm2)[5]/trials)
-print("team 3: ",results(tm3)[0]/trials," ",results(tm3)[1]/trials," ",results(tm3)[2]/trials," ",
-      results(tm3)[3]/trials," ",results(tm3)[4]/trials," ",results(tm3)[5]/trials)
-print("team 4: ",results(tm4)[0]/trials," ",results(tm4)[1]/trials," ",results(tm4)[2]/trials," ",
-      results(tm4)[3]/trials," ",results(tm4)[4]/trials," ",results(tm4)[5]/trials)
-print("team 5: ",results(tm5)[0]/trials," ",results(tm5)[1]/trials," ",results(tm5)[2]/trials," ",
-      results(tm5)[3]/trials," ",results(tm5)[4]/trials," ",results(tm5)[5]/trials)
-print("team 6: ",results(tm6)[0]/trials," ",results(tm6)[1]/trials," ",results(tm6)[2]/trials," ",
-      results(tm6)[3]/trials," ",results(tm6)[4]/trials," ",results(tm6)[5]/trials) 
+print("12th place: ",100*results(tm1)[0]/trials," ",100*results(tm1)[1]/trials," ",100*results(tm1)[2]/trials," ",
+      100*results(tm1)[3]/trials," ",100*results(tm1)[4]/trials," ",100*results(tm1)[5]/trials)
+print("11th place: ",100*results(tm2)[0]/trials," ",100*results(tm2)[1]/trials," ",100*results(tm2)[2]/trials," ",
+      100*results(tm2)[3]/trials," ",100*results(tm2)[4]/trials," ",100*results(tm2)[5]/trials)
+print("10th place: ",100*results(tm3)[0]/trials," ",100*results(tm3)[1]/trials," ",100*results(tm3)[2]/trials," ",
+      100*results(tm3)[3]/trials," ",100*results(tm3)[4]/trials," ",100*results(tm3)[5]/trials)
+print(" 9th place: ",100*results(tm4)[0]/trials," ",100*results(tm4)[1]/trials," ",100*results(tm4)[2]/trials," ",
+      100*results(tm4)[3]/trials," ",100*results(tm4)[4]/trials," ",100*results(tm4)[5]/trials)
+print(" 8th place: ",100*results(tm5)[0]/trials," ",100*results(tm5)[1]/trials," ",100*results(tm5)[2]/trials," ",
+      100*results(tm5)[3]/trials," ",100*results(tm5)[4]/trials," ",100*results(tm5)[5]/trials)
+print(" 7th place: ",100*results(tm6)[0]/trials," ",100*results(tm6)[1]/trials," ",100*results(tm6)[2]/trials," ",
+      100*results(tm6)[3]/trials," ",100*results(tm6)[4]/trials," ",100*results(tm6)[5]/trials) 

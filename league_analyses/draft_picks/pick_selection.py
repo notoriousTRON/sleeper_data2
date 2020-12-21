@@ -163,7 +163,8 @@ for x in range(official_selection):
         # update probabilities by discarding all the tickets
         # belonging to picked team
         weights[team_picked-1] = 0
-        
+
+"""        
 time.sleep(sleep_timer_playoffs)
 print("            ")
 print("playoff finishes:")
@@ -173,3 +174,4 @@ for y in range(0,len(playoff_finishes)):
     pick_holder = pick_held_by[playoff_finishes[finish(6-y)]]
     orig_pick_owner = playoff_finishes[finish(6-y)]
     print('pick '+ str(y+7),': ',finish(6-y),' - ',pick_holder,'('+orig_pick_owner+"'s pick"+')')
+"""
