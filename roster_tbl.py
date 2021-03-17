@@ -11,6 +11,8 @@ import open_connection
 import references
 from datetime import datetime
 
+year = '2021'
+
 def drop_table(tbl_name):
     db = open_connection.open_connection()
     cursor = db.cursor()
@@ -33,7 +35,7 @@ def refresh_roster_data(User_ID,roster_id,Player_id):
 
 
 #enter sleeper league ID here
-l_id = references.league_id()
+l_id = references.league_id(year)
 
 rost = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/rosters")
 rosters_json = rost.json()
