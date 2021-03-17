@@ -44,7 +44,6 @@ def add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transact
     db.close()
     return
 
-l_id = references.league_id()
 #l_id = "470255783251013632"
 #year = 2019
 #week = 1
@@ -86,6 +85,7 @@ def process_it(year,week):
 #    wk = '0'+str(week)
 #else:
 #    wk = str(week)
+    l_id = references.league_id(year)
     wk = str(week)
     w_transactions = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/transactions/"+str(week))
     w_transactions_json = w_transactions.json()
