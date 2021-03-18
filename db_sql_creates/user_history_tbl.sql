@@ -1,26 +1,35 @@
-CREATE TABLE user_history_tbl AS
-SELECT DISTINCT user_id, roster_id, display_name FROM map_user_roster_tbl
+DROP TABLE stg.user_history_tbl CASCADE;
+CREATE TABLE stg.user_history_tbl AS
+SELECT DISTINCT user_id, roster_id, display_name FROM stg.map_user_roster_tbl ORDER BY user_id
 
-ALTER TABLE user_history_tbl
+ALTER TABLE stg.user_history_tbl
 ADD COLUMN join_date DATE
 
-UPDATE user_history_tbl
+UPDATE stg.user_history_tbl
 SET join_date = '2020-4-03'
 WHERE display_name IN ('troeysitzes','elandry')
 
-UPDATE user_history_tbl
+UPDATE stg.user_history_tbl
 SET join_date = '2020-9-05'
 WHERE display_name IN ('TheSwofford')
 
-ALTER TABLE user_history_tbl
+UPDATE stg.user_history_tbl
+SET join_date = '2020-12-23'
+WHERE display_name IN ('jcon78')
+
+ALTER TABLE stg.user_history_tbl
 ADD COLUMN leave_date DATE
 
-UPDATE user_history_tbl
+UPDATE stg.user_history_tbl
 SET leave_date = '2020-4-03'
 WHERE display_name IN ('DREAMEROFSACKS','heyooooo')
 
-UPDATE user_history_tbl
+UPDATE stg.user_history_tbl
 SET leave_date = '2020-9-05'
 WHERE display_name IN ('LandonHWins')
 
-SELECT * FROM user_history_tbl
+UPDATE stg.user_history_tbl
+SET leave_date = '2020-12-23'
+WHERE display_name IN ('rapplean')
+
+SELECT * FROM stg.user_history_tbl
