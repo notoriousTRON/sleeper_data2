@@ -80,7 +80,7 @@ db.commit()
 cursor.close()
 db.close()
 '''
-def process_it(year,week):
+def pull_transactions(year,week):
 #if len(str(week))<2:
 #    wk = '0'+str(week)
 #else:
