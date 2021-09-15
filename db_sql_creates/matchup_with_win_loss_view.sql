@@ -2,8 +2,10 @@ DROP VIEW IF EXISTS data.matchup_wl_view;
 CREATE VIEW data.matchup_wl_view AS
 SELECT
     *
-    ,CASE WHEN m3.points > m3.opp_points THEN 1 ELSE 0 END AS Win
-    ,CASE WHEN m3.points > m3.opp_points THEN 0 ELSE 1 END AS Loss
+    ,CASE WHEN m3.opp_name IS NULL THEN NULL
+		  WHEN m3.points > m3.opp_points THEN 1 ELSE 0 END AS Win
+    ,CASE WHEN m3.opp_name IS NULL THEN NULL
+		  WHEN m3.points > m3.opp_points THEN 0 ELSE 1 END AS Loss
 FROM
     (
     SELECT
