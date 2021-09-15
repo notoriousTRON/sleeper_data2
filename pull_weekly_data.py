@@ -16,8 +16,8 @@ def run_io_tasks_in_parallel(tasks):
 
 def pull_weekly_data(year,week,tnf_date):
     run_io_tasks_in_parallel([
+        #lambda: pull_players(year),
         lambda: pull_matchups(year,week,tnf_date),
-        lambda: pull_players(year),
         lambda: pull_transactions(year,week),
     ])
 

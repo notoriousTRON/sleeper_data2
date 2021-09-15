@@ -34,7 +34,7 @@ def truncate_table(tbl_name):
 def refresh_player_data(player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = """INSERT INTO players_tbl(player_id,position,depth_chart_position,fantasy_positions,
+    insert_query = """INSERT INTO sleeper_raw.players_tbl(player_id,position,depth_chart_position,fantasy_positions,
                                                 first_name,last_name,full_name,years_exp,status,birth_date,
                                                 college,height,weight,age) 
                     VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s,%s, %s, %s, %s, %s)
@@ -73,11 +73,11 @@ def pull_players(year):
     # roster_data = pd.DataFrame(rosters_json)
     # #pd.read_json(_, orient='split')
     # print(roster_data)
-    truncate_table("players_tbl")
+    truncate_table("sleeper_raw.players_tbl")
     '''
-    drop_table("players_tbl")
+    drop_table("sleeper_raw.players_tbl")
     players_create = """
-        CREATE TABLE players_tbl
+        CREATE TABLE sleeper_raw.players_tbl
         (
         player_id character(255),
         position character(10),
