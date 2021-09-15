@@ -12,6 +12,11 @@ FROM
         u.display_name
         ,mt.year
         ,mt.week
+		,CASE WHEN mt.year <= 2020 AND mt.week <=13 THEN 'REG SEASON'
+			  WHEN mt.year > 2020 AND mt.week <=14 THEN 'REG SEASON'
+			  WHEN mt.year <= 2020 AND week >= 14 THEN 'POST SEASON'
+			  WHEN mt.year > 2020 AND week >= 15 THEN 'POST SEASON'
+			  END AS time_of_year
         ,mt.points
         ,m2.display_name AS opp_name
         ,m2.points AS opp_points
