@@ -54,8 +54,6 @@ def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matc
     db.close()
     return
 
-l_id = references.league_id()
-
 '''
 drop_table("sleeper_raw.matchups_tbl")
 drop_table("sleeper_raw.matchups_plr_tbl")
@@ -98,6 +96,8 @@ cursor.close()
 db.close()
 '''
 def pull_matchups(year,week,tnf_date):
+    l_id = references.league_id(year)
+    
     matchup = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/matchups/"+str(week))
     matchup_json = matchup.json()
     matchup_data = pd.DataFrame(matchup_json)
