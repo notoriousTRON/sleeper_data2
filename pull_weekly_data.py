@@ -21,4 +21,4 @@ def pull_weekly_data(year,week,tnf_date):
         lambda: pull_transactions(year,week),
     ])
 
-pull_weekly_data('2021','1','2020-12-25')
+pull_weekly_data('2021','1','2021-9-9')
