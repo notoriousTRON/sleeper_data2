@@ -40,15 +40,18 @@ def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,sta
     db.close()
     return
 
-def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter):
+def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points):
     db = open_connection.open_connection()
     cursor = db.cursor()
-    insert_query = """INSERT INTO sleeper_raw.matchups_plr_tbl(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    insert_query = """INSERT INTO sleeper_raw.matchups_plr_tbl(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT (matchup_rost_plr_key) 
-                            DO NOTHING
+                            DO UPDATE SET
+                                player_points = Excluded.player_points,
+                                is_starter = Excluded.is_starter,
+                                roster_id = Excluded.roster_id
                             """
-    cursor.execute(insert_query, (matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter))
+    cursor.execute(insert_query, (matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points))
     db.commit()
     cursor.close()
     db.close()
@@ -109,6 +112,8 @@ def pull_matchups(year,week,tnf_date):
         players = matchup_json[i]['players']
         starters = matchup_json[i]['starters']
         points = matchup_json[i]['points']
+        player_points_dict = matchup_json[i]['players_points']
+        
         if len(str(week))<2:
             wk = '0'+str(week)
         else:
@@ -125,6 +130,7 @@ def pull_matchups(year,week,tnf_date):
         add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,tnf_date)
         for j in matchup_json[i]['players']:
             Player_id = j
+            player_points = player_points_dict[Player_id]
             is_starter = j in matchup_json[i]['starters']
             matchup_rost_plr_key = str(matchup_rost_key) + '_' +str(Player_id)
-            add_matchup_player_data(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter)
+            add_matchup_player_data(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points)
