@@ -11,8 +11,6 @@ import open_connection
 import references
 from datetime import datetime
 
-year = '2021'
-
 def drop_table(tbl_name):
     db = open_connection.open_connection()
     cursor = db.cursor()
