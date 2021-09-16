@@ -25,7 +25,7 @@ def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO 
-                            draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,
+                            sleeper_raw.draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,
                                             overall_pick_no,user_id,roster_id,player_id) 
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT (draft_player_key) 
@@ -37,13 +37,11 @@ def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_
     db.close()
     return
 
-l_id = references.league_id()
-
 #only use the next block if you plan to reset the entire table
 '''
-drop_table("draft_tbl")
+drop_table("sleeper_raw.draft_tbl")
 draft_create = """
-    CREATE TABLE draft_tbl
+    CREATE TABLE sleeper_raw.draft_tbl
     (
     draft_player_key character(255),
     draft_year character(255),
@@ -65,7 +63,9 @@ db.commit()
 cursor.close()
 db.close()
 '''
-def process_it(year):
+def pull_draft_data(year):
+    l_id = references.league_id(year)
+    
     #first we need to get the draft id
     w_draft = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/drafts/")
     w_draft_json = w_draft.json()
