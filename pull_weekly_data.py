@@ -4,7 +4,9 @@
 import os
 os.chdir(r'C:\projects\sleeper_data')
 from players_tbl import *
+os.chdir(r'C:\projects\sleeper_data')
 from matchup_tbl import *
+os.chdir(r'C:\projects\sleeper_data')
 from transactions_tbl import *
 from concurrent.futures import ThreadPoolExecutor
 
@@ -21,4 +23,4 @@ def pull_weekly_data(year,week,tnf_date):
         lambda: pull_transactions(year,week),
     ])
 
-pull_weekly_data('2021','1','2021-9-9')
+pull_weekly_data('2021','3','2021-9-23')
