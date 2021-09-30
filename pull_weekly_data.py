@@ -16,11 +16,11 @@ def run_io_tasks_in_parallel(tasks):
         for running_task in running_tasks:
             running_task.result()
 
-def pull_weekly_data(year,week,tnf_date):
+def pull_weekly_data(year,week):
     run_io_tasks_in_parallel([
         #lambda: pull_players(year),
-        lambda: pull_matchups(year,week,tnf_date),
+        lambda: pull_matchups(year,week),
         lambda: pull_transactions(year,week),
     ])
 
-pull_weekly_data('2021','3','2021-9-23')
+pull_weekly_data('2021','4')

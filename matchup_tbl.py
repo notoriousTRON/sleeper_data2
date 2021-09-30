@@ -21,20 +21,19 @@ def drop_table(tbl_name):
     db.close()
     return
 
-def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,matchup_start_date):
+def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points):
     db = open_connection.open_connection()
     cursor = db.cursor()
     insert_query = """INSERT INTO sleeper_raw.matchups_tbl(matchup_rost_key,year,week,matchup_id,
-                                                roster_id,players,starters,points,matchup_start_date) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                                roster_id,players,starters,points) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT (matchup_rost_key)
                             DO UPDATE SET
                                 points = Excluded.points,
-                                matchup_start_date = Excluded.matchup_start_date,
                                 starters = Excluded.starters,
                                 players = Excluded.players
                             """
-    cursor.execute(insert_query, (matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,matchup_start_date))
+    cursor.execute(insert_query, (matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points))
     db.commit()
     cursor.close()
     db.close()
@@ -71,7 +70,6 @@ matchup_create = """
     players character(255) ARRAY,
     starters character(255) ARRAY,
     points float(1),
-    matchup_start_date date,
     primary key(matchup_rost_key)
     )
     """
@@ -98,13 +96,12 @@ db.commit()
 cursor.close()
 db.close()
 '''
-def pull_matchups(year,week,tnf_date):
+def pull_matchups(year,week):
     l_id = references.league_id(year)
     
     matchup = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/matchups/"+str(week))
     matchup_json = matchup.json()
     matchup_data = pd.DataFrame(matchup_json)
-    matchup_start_date = tnf_date
     
     for i in range(0,len(matchup_json)):
         roster_id = matchup_json[i]['roster_id']
@@ -127,7 +124,7 @@ def pull_matchups(year,week,tnf_date):
         else:
             r_id = str(roster_id)
         matchup_rost_key = str(year)+wk+m_id+r_id
-        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points,tnf_date)
+        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points)
         for j in matchup_json[i]['players']:
             Player_id = j
             player_points = player_points_dict[Player_id]
