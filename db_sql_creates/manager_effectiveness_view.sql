@@ -1,5 +1,3 @@
--- View: public.manager_effectiveness_view
-
 --DROP VIEW data.manager_effectiveness_view;
 
 CREATE OR REPLACE VIEW data.manager_effectiveness_view AS
@@ -137,6 +135,10 @@ SELECT inr4.player_id,
 					ON
 						mp.matchup_rost_key = mt.matchup_rost_key
 					LEFT JOIN
+						stg.matchup_start_date msd
+					ON
+						mp.year = msd.year AND mp.week = msd.week
+					LEFT JOIN
 					(SELECT
 						user_id
 						,roster_id
@@ -149,14 +151,5 @@ SELECT inr4.player_id,
 						stg.user_history_tbl) usr
 					ON
 						mp.roster_id = usr.roster_id AND
-						mt.matchup_start_date BETWEEN usr.join_date1 AND usr.leave_date1
+						msd.matchup_start_date BETWEEN usr.join_date1 AND usr.leave_date1
 					) inr) inr2) inr3) inr4
-LEFT JOIN
-	data.competition_type_view ct
-ON
-	inr4.matchup_key = ct.matchup_key
-
---ALTER TABLE public.manager_effectiveness_view
-    --OWNER TO postgres;
-
-
