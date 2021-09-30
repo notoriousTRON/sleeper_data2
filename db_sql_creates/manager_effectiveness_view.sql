@@ -153,3 +153,7 @@ SELECT inr4.player_id,
 						mp.roster_id = usr.roster_id AND
 						msd.matchup_start_date BETWEEN usr.join_date1 AND usr.leave_date1
 					) inr) inr2) inr3) inr4
+LEFT JOIN
+	data.competition_type_view ct 
+ON 
+	inr4.matchup_key = ct.matchup_key
