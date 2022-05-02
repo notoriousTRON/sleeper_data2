@@ -2,8 +2,8 @@
 --CREATE TABLE stg.map_user_roster_tbl AS
 INSERT INTO stg.map_user_roster_tbl
 SELECT
-	'2021' AS year
-    ,CONCAT('2021',b.user_id) AS year_user_id
+	'2022' AS year
+    ,CONCAT('2022',b.user_id) AS year_user_id
 	,b.user_id
     ,b.roster_id
     ,b.display_name
@@ -21,4 +21,4 @@ FROM
         sleeper_raw.users_tbl us
     ON
         r.user_id = us.user_id
-    ) b
+    ) b;

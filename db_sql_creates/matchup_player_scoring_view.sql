@@ -15,7 +15,7 @@ SELECT
 	,p.position
 	,mp.is_starter
 	,mp.player_points
-	--,row_number() OVER (PARTITION BY mp.year, mp.week, p.position ORDER BY mp.player_points DESC NULLS LAST) AS pos_rank
+	,row_number() OVER (PARTITION BY mp.year, mp.week, p.position ORDER BY mp.player_points DESC NULLS LAST) AS pos_rank
 FROM
 	sleeper_raw.matchups_plr_tbl mp
 LEFT JOIN

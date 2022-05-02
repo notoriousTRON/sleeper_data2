@@ -11,7 +11,7 @@ import open_connection
 import references
 from datetime import datetime
 
-year = '2021'
+#year = '2021'
 
 def drop_table(tbl_name):
     db = open_connection.open_connection()
@@ -33,42 +33,40 @@ def refresh_roster_data(User_ID,roster_id,Player_id):
     db.close()
     return
 
-
-#enter sleeper league ID here
-l_id = references.league_id(year)
-
-rost = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/rosters")
-rosters_json = rost.json()
-#print(rosters_json)
-roster_data = pd.DataFrame(rosters_json)
-
-# #### #leauge_data = pd.read_json(leauge_data_json)
-# roster_data = pd.DataFrame(rosters_json)
-# #pd.read_json(_, orient='split')
-# print(roster_data)
-drop_table("sleeper_raw.rosters_tbl")
-roster_create = """
-CREATE TABLE sleeper_raw.rosters_tbl
-    (
-    User_Id character(255),
-    roster_id character(2),
-    Player_id character(255),
-
-    primary key(Player_id)
-    )
-    """
-db = open_connection.open_connection()
-cursor = db.cursor()
-cursor.execute(roster_create)
-db.commit()
-cursor.close()
-db.close()
-
 #roster_tbl = pd.DataFrame(columns=['User_ID', 'Player_id'])
 #DataFrameName.insert(loc, column, value, allow_duplicates = False)
-for i in range(0,len(rosters_json)):
-    User_ID = rosters_json[i]['owner_id']
-    roster_id = rosters_json[i]['roster_id']
-    for j in rosters_json[i]['players']:
-        Player_id = j
-        refresh_roster_data(User_ID,roster_id,Player_id)
+def pull_roster_data(year):
+	l_id = references.league_id(year)
+	rost = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/rosters")
+	rosters_json = rost.json()
+	#print(rosters_json)
+	roster_data = pd.DataFrame(rosters_json)
+
+	# #### #leauge_data = pd.read_json(leauge_data_json)
+	# roster_data = pd.DataFrame(rosters_json)
+	# #pd.read_json(_, orient='split')
+	# print(roster_data)
+	drop_table("sleeper_raw.rosters_tbl")
+	roster_create = """
+	CREATE TABLE sleeper_raw.rosters_tbl
+		(
+		User_Id character(255),
+		roster_id character(2),
+		Player_id character(255),
+
+		primary key(Player_id)
+		)
+		"""
+	db = open_connection.open_connection()
+	cursor = db.cursor()
+	cursor.execute(roster_create)
+	db.commit()
+	cursor.close()
+	db.close()
+
+	for i in range(0,len(rosters_json)):
+		User_ID = rosters_json[i]['owner_id']
+		roster_id = rosters_json[i]['roster_id']
+		for j in rosters_json[i]['players']:
+			Player_id = j
+			refresh_roster_data(User_ID,roster_id,Player_id)

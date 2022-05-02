@@ -3,46 +3,47 @@ import time
 
 #adjust the timers for added suspense (in seconds)
 prob_timer=3
-btw_prob_lottery_timer = 15
-sleep_timer_lottery = 5
+btw_prob_lottery_timer = 5
+sleep_timer_lottery = 2
 sleep_timer_playoffs = 1
 
 #weights as agreed upon in the bylaws
 official_weights = [10, 7, 5, 3, 2, 1]
 
 #update with standings:
-#team_finishes = ['Troey','Dave','Rapp','Turd','Richmond','Swoff']
-team_finishes = {'12th place':'Troey',
-                 '11th place':'Dave',
-                 '10th place':'Rapp',
-                 '9th place':'Turd',
-                 '8th place':'Richmond',
-                 '7th place':'Swoff'
+#team_finishes20 = ['Troey','Dave','Rapp','Turd','Richmond','Swoff']
+#team_finishes21 = ['Swoff','Justin','Troey','Richmond','Brent','Dave']
+team_finishes = {'12th place':'Swoff',
+                 '11th place':'Justin',
+                 '10th place':'Troey',
+                 '9th place':'Richmond',
+                 '8th place':'Brent',
+                 '7th place':'Dave'
                 }
 
 #go through each team and update the pick ownership:
-pick_held_by = {'Troey':'Bryce',
-                'Dave':'Landry',
-                'Rapp':'Landry',
-                'Turd':'Dave',
-                'Richmond':'Taco',
-                'Swoff':'Swoff',
-                'Landry':'Bryce',
-                'Alex':'Swoff',
+pick_held_by = {'Troey':'Jcon',
+                'Dave':'Bryce',
+                'Justin':'Bryce',
+                'Turd':'Troey',
+                'Richmond':'Bryce',
+                'Swoff':'Bryce',
+                'Landry':'Jcon',
+                'Alex':'Richmond',
                 'Bryce':'Swoff',
-                'Ryan':'Ryan',
-                'Taco':'Taco',
-                'Brent':'Dave'
+                'Ryan':'Dave',
+                'Taco':'Richmond',
+                'Brent':'Bryce'
                }
 
 #update the 
 #playoff_finishes = ['Landry','Alex','Bryce','Ryan','Taco','Brent']
-playoff_finishes = {'1st place':'Brent',
-                     '2nd place':'Taco',
-                     '3rd place':'Ryan',
-                     '4th place':'Bryce',
-                     '5th place':'Alex',
-                     '6th place':'Landry'
+playoff_finishes = {'1st place':'Taco',
+                     '2nd place':'Turd',
+                     '3rd place':'Landry',
+                     '4th place':'Alex',
+                     '5th place':'Bryce',
+                     '6th place':'Ryry'
                     }
 
 teams = [ i + 1 for i in range(6)]
