@@ -33,21 +33,30 @@ FROM
 			  WHEN CAST(mt.year AS INT) <= 2020 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (4) THEN 'TURD FINALS'
 			  WHEN CAST(mt.year AS INT) <= 2020 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (5) THEN 'NINTH PLACE GAME'
 			  WHEN CAST(mt.year AS INT) <= 2020 AND CAST(mt.week AS INT) = 16 AND mt.matchup_id IS NULL THEN 'BYE WEEK'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) <= 14 THEN 'REG SEASON'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 15 AND CAST(mt.matchup_id AS INT) IN (1,2) THEN 'QUARTER FINALS'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 15 AND CAST(mt.matchup_id AS INT) IN (4,5) THEN 'TURD QUARTER FINALS'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 15 AND mt.matchup_id IS NULL THEN 'BYE WEEK'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (1,2) THEN 'SEMI FINALS'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (3)  THEN 'FIFTH PLACE GAME'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (4,5) THEN 'TURD SEMI FINALS'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (6) THEN 'SEVENTH PLACE GAME'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (1) THEN 'FINALS'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (2) THEN 'THIRD PLACE GAME'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (4) THEN 'TURD FINALS'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (5) THEN 'NINTH PLACE GAME'
-			  WHEN CAST(mt.year AS INT) <= 2021 AND CAST(mt.week AS INT) = 17 AND mt.matchup_id IS NULL THEN 'BYE WEEK'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) <= 14 THEN 'REG SEASON'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 15 AND CAST(mt.matchup_id AS INT) IN (1,2) THEN 'QUARTER FINALS'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 15 AND CAST(mt.matchup_id AS INT) IN (4,5) THEN 'TURD QUARTER FINALS'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 15 AND mt.matchup_id IS NULL THEN 'BYE WEEK'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (1,2) THEN 'SEMI FINALS'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (3)  THEN 'FIFTH PLACE GAME'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (4,5) THEN 'TURD SEMI FINALS'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 16 AND CAST(mt.matchup_id AS INT) IN (6) THEN 'SEVENTH PLACE GAME'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (1) THEN 'FINALS'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (2) THEN 'THIRD PLACE GAME'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (4) THEN 'TURD FINALS'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 17 AND CAST(mt.matchup_id AS INT) IN (5) THEN 'NINTH PLACE GAME'
+			  WHEN CAST(mt.year AS INT) >= 2021 AND CAST(mt.week AS INT) = 17 AND mt.matchup_id IS NULL THEN 'BYE WEEK'
 			  END AS round
     FROM
-        sleeper_raw.matchups_tbl mt
+        (
+		SELECT DISTINCT
+			year
+			,week
+			,matchup_id
+		FROM
+			sleeper_raw.matchups_tbl
+		) mt
+	ORDER BY
+		year,week,matchup_id
 
     ) m3
