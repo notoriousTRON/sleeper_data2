@@ -40,4 +40,12 @@ UPDATE stg.user_history_tbl
 SET leave_date = '2022-4-15'
 WHERE display_name IN ('Richmond3711');
 
+UPDATE stg.user_history_tbl
+SET leave_date = '2022-11-04'
+WHERE display_name IN ('TheSwofford');
+
+UPDATE stg.user_history_tbl
+SET join_date = '2022-11-04'
+WHERE display_name IN ('nmasterson');
+
 SELECT * FROM stg.user_history_tbl

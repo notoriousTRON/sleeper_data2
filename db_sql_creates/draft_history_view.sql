@@ -1,5 +1,5 @@
-DROP VIEW data.draft_history_view;
-CREATE VIEW data.draft_history_view AS
+--DROP VIEW data.draft_history_view;
+CREATE OR REPLACE VIEW data.draft_history_view AS
 SELECT 
 	d.draft_year
 	,d.draft_type
