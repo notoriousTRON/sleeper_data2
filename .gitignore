@@ -6,3 +6,4 @@ references.py
 *.xls
 *.txt
 \data
+\archive
