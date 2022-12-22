@@ -11,8 +11,8 @@ import open_connection
 import references
 from datetime import datetime
 
-def drop_table(tbl_name):
-    db = open_connection.open_connection()
+def drop_table(tbl_name,storage):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     drop = "DROP TABLE IF EXISTS "+tbl_name
     cursor.execute(drop)
@@ -21,8 +21,8 @@ def drop_table(tbl_name):
     db.close()
     return
 
-def truncate_table(tbl_name):
-    db = open_connection.open_connection()
+def truncate_table(tbl_name,storage):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     drop = "TRUNCATE "+tbl_name
     cursor.execute(drop)
@@ -31,8 +31,117 @@ def truncate_table(tbl_name):
     db.close()
     return
 
-def refresh_player_data(player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age):
-    db = open_connection.open_connection()
+#these are the table structures in a new data location
+def create_table_structures(storage):
+    drop_table("sleeper_raw.matchups_tbl",storage)
+    drop_table("sleeper_raw.matchups_plr_tbl",storage)
+    matchup_create = """
+        CREATE TABLE sleeper_raw.matchups_tbl
+        (
+        matchup_rost_key character(20),
+        year character(4),
+        week character(2),
+        matchup_id character(2),
+        roster_id character(2),
+        players character(255) ARRAY,
+        starters character(255) ARRAY,
+        points float(1),
+        primary key(matchup_rost_key)
+        )
+        """
+    matchup_plr_create = """
+        CREATE TABLE sleeper_raw.matchups_plr_tbl
+        (
+        matchup_rost_plr_key character(30),
+        matchup_rost_key character(20),
+        year character(4),
+        week character(2),
+        matchup_id character(2),
+        roster_id character(2),
+        Player_id character(255),
+        is_starter BOOLEAN,
+
+        primary key(matchup_rost_plr_key)
+        )
+        """
+    drop_table("sleeper_raw.draft_tbl",storage)
+    draft_create = """
+        CREATE TABLE sleeper_raw.draft_tbl
+        (
+        draft_player_key character(255),
+        draft_year character(255),
+        draft_type character(255),
+        round character(255),
+        pick_no character(255),
+        overall_pick_no character(255),
+        user_id character(255),
+        roster_id character(255),
+        player_id character(255),
+
+        primary key(draft_player_key)
+        )
+        """
+    drop_table("sleeper_raw.transactions_tbl",storage)
+    transaction_create = """
+        CREATE TABLE sleeper_raw.transactions_tbl
+        (
+        tn_rost_plyr_id character(255),
+        transaction_id character(255),
+        creater_user_id character(255),
+        transaction_type character(255),
+        year character(4),
+        week character(4),
+        status_date timestamp,
+        create_date timestamp,
+        waiver_bid_ammount character(4),
+        transaction_status character(20),
+        roster_id character(255),
+        player_id character(255),
+        add_drop character(10),
+        asset_type character(10),
+        faab_ammount character(3),
+
+        primary key(tn_rost_plyr_id)
+        )
+        """
+
+    drop_table("sleeper_raw.players_tbl",storage)
+    players_create = """
+        CREATE TABLE sleeper_raw.players_tbl
+        (
+        player_id character(255),
+        position character(10),
+        depth_chart_position character(100),
+        fantasy_positions character(100),
+        first_name character(50),
+        last_name character(50),
+        full_name character(50),
+        years_exp character(2),
+        status character(50),
+        birth_date character(10),
+        college character(50),
+        height character(10),
+        weight character(10),
+        age character(3),
+
+        primary key(player_id)
+        )
+        """
+
+    db = open_connection.open_connection(storage)
+    cursor = db.cursor()
+    cursor.execute(transaction_create)
+    cursor.execute(draft_create)
+    cursor.execute(matchup_create)
+    cursor.execute(matchup_plr_create)
+    cursor.execute(players_create)
+    db.commit()
+    cursor.close()
+    db.close()
+
+
+def refresh_player_data(storage,player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = """INSERT INTO sleeper_raw.players_tbl(player_id,position,depth_chart_position,fantasy_positions,
                                                 first_name,last_name,full_name,years_exp,status,birth_date,
@@ -60,7 +169,7 @@ def refresh_player_data(player_id,position,depth_chart_position,fantasy_position
     db.close()
     return
 
-def pull_players(year):
+def pull_players(year,storage):
     #enter sleeper league ID here
     #l_id = ref.league_id()
     l_id = references.league_id(year)
@@ -73,37 +182,8 @@ def pull_players(year):
     # roster_data = pd.DataFrame(rosters_json)
     # #pd.read_json(_, orient='split')
     # print(roster_data)
-    truncate_table("sleeper_raw.players_tbl")
-    '''
-    drop_table("sleeper_raw.players_tbl")
-    players_create = """
-        CREATE TABLE sleeper_raw.players_tbl
-        (
-        player_id character(255),
-        position character(10),
-        depth_chart_position character(100),
-        fantasy_positions character(100),
-        first_name character(50),
-        last_name character(50),
-        full_name character(50),
-        years_exp character(2),
-        status character(50),
-        birth_date character(10),
-        college character(50),
-        height character(10),
-        weight character(10),
-        age character(3),
+    truncate_table("sleeper_raw.players_tbl",storage)
 
-        primary key(player_id)
-        )
-        """
-    db = open_connection.open_connection()
-    cursor = db.cursor()
-    cursor.execute(players_create)
-    db.commit()
-    cursor.close()
-    db.close()
-    '''
     for i in players_json.keys():
         player_id = i
         try:
@@ -158,9 +238,19 @@ def pull_players(year):
             age = players_json[i]['age']
         except:
             age = None
-        refresh_player_data(player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age)
-		
-def pull_roster_data(year):
+        refresh_player_data(storage,player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age)
+
+def refresh_roster_data(storage,User_ID,roster_id,Player_id):
+    db = open_connection.open_connection()
+    cursor = db.cursor()
+    insert_query = "INSERT INTO sleeper_raw.rosters_tbl(User_ID,roster_id,Player_id) VALUES (%s, %s, %s)"
+    cursor.execute(insert_query, (User_ID,roster_id,Player_id))
+    db.commit()
+    cursor.close()
+    db.close()
+    return
+
+def pull_roster_data(year,storage):
 	l_id = references.league_id(year)
 	rost = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/rosters")
 	rosters_json = rost.json()
@@ -171,7 +261,7 @@ def pull_roster_data(year):
 	# roster_data = pd.DataFrame(rosters_json)
 	# #pd.read_json(_, orient='split')
 	# print(roster_data)
-	drop_table("sleeper_raw.rosters_tbl")
+	drop_table("sleeper_raw.rosters_tbl",storage)
 	roster_create = """
 	CREATE TABLE sleeper_raw.rosters_tbl
 		(
@@ -182,7 +272,7 @@ def pull_roster_data(year):
 		primary key(Player_id)
 		)
 		"""
-	db = open_connection.open_connection()
+	db = open_connection.open_connection(storage)
 	cursor = db.cursor()
 	cursor.execute(roster_create)
 	db.commit()
@@ -194,13 +284,13 @@ def pull_roster_data(year):
 		roster_id = rosters_json[i]['roster_id']
 		for j in rosters_json[i]['players']:
 			Player_id = j
-			refresh_roster_data(User_ID,roster_id,Player_id)
+			refresh_roster_data(storage,User_ID,roster_id,Player_id)
 
-def add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+def add_transaction_data(storage,tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                          year,week,status_date,create_date,
                          waiver_bid_ammount,transaction_status,
                          roster_id,player_id,add_drop,asset_type,faab_ammount):
-    db = open_connection.open_connection()
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = """INSERT INTO 
                             sleeper_raw.transactions_tbl(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
@@ -219,43 +309,7 @@ def add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transact
     db.close()
     return
 
-#l_id = "470255783251013632"
-#year = 2019
-#week = 1
-
-#only use the next block if you plan to reset the entire table
-'''
-drop_table("sleeper_raw.transactions_tbl")
-transaction_create = """
-    CREATE TABLE sleeper_raw.transactions_tbl
-    (
-    tn_rost_plyr_id character(255),
-    transaction_id character(255),
-    creater_user_id character(255),
-    transaction_type character(255),
-    year character(4),
-    week character(4),
-    status_date timestamp,
-    create_date timestamp,
-    waiver_bid_ammount character(4),
-    transaction_status character(20),
-    roster_id character(255),
-    player_id character(255),
-    add_drop character(10),
-    asset_type character(10),
-    faab_ammount character(3),
-    
-    primary key(tn_rost_plyr_id)
-    )
-    """
-db = open_connection.open_connection()
-cursor = db.cursor()
-cursor.execute(transaction_create)
-db.commit()
-cursor.close()
-db.close()
-'''
-def pull_transactions(year,week):
+def pull_transactions(year,week,storage):
 #if len(str(week))<2:
 #    wk = '0'+str(week)
 #else:
@@ -284,7 +338,7 @@ def pull_transactions(year,week):
                 add_drop = 'add'
                 asset_type = 'player'
 
-                add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+                add_transaction_data(storage,tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                      year,wk,status_date,create_date,
                                      waiver_bid_ammount,transaction_status,
                                      roster_id,player_id,add_drop,asset_type,faab_ammount)
@@ -297,7 +351,7 @@ def pull_transactions(year,week):
                 add_drop = 'drop'
                 asset_type = 'player'
 
-                add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+                add_transaction_data(storage,tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                      year,wk,status_date,create_date,
                                      waiver_bid_ammount,transaction_status,
                                      roster_id,player_id,add_drop,asset_type,faab_ammount)
@@ -313,7 +367,7 @@ def pull_transactions(year,week):
                 asset_type = 'pick'
                 add_drop = 'add'
 
-                add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+                add_transaction_data(storage,tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                      year,wk,status_date,create_date,
                                      waiver_bid_ammount,transaction_status,
                                      roster_id,player_id,add_drop,asset_type,faab_ammount)
@@ -321,7 +375,7 @@ def pull_transactions(year,week):
                 tn_rost_plyr_id = str(transaction_id)+str(roster_id)+str(player_id)
                 add_drop = 'drop'
 
-                add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+                add_transaction_data(storage,tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                      year,wk,status_date,create_date,
                                      waiver_bid_ammount,transaction_status,
                                      roster_id,player_id,add_drop,asset_type,faab_ammount)
@@ -337,13 +391,13 @@ def pull_transactions(year,week):
                 add_drop = 'drop'
                 roster_id = w['receiver']
 
-                add_transaction_data(tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
+                add_transaction_data(storage,tn_rost_plyr_id,transaction_id,creater_user_id,transaction_type,
                                      year,wk,status_date,create_date,
                                      waiver_bid_ammount,transaction_status,
                                      roster_id,player_id,add_drop,asset_type,faab_ammount)
 									 
-def refresh_user_data(display_name,league_id,user_id,team_name):
-    db = open_connection.open_connection()
+def refresh_user_data(storage,display_name,league_id,user_id,team_name):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = """INSERT INTO sleeper_raw.users_tbl(display_name, league_id, user_id, team_name) 
                             VALUES (%s, %s, %s, %s)
@@ -357,7 +411,7 @@ def refresh_user_data(display_name,league_id,user_id,team_name):
 
 #roster_tbl = pd.DataFrame(columns=['User_ID', 'Player_id'])
 #DataFrameName.insert(loc, column, value, allow_duplicates = False)
-def pull_user_data(year):
+def pull_user_data(year,storage):
 	l_id = references.league_id(year)
 	usrs = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/users")
 	usrs_json = usrs.json()
@@ -367,7 +421,7 @@ def pull_user_data(year):
 	# roster_data = pd.DataFrame(rosters_json)
 	# #pd.read_json(_, orient='split')
 	# print(roster_data)
-	drop_table("sleeper_raw.users_tbl")
+	drop_table("sleeper_raw.users_tbl",storage)
 	user_create = """
 	CREATE TABLE sleeper_raw.users_tbl
 		(
@@ -379,7 +433,7 @@ def pull_user_data(year):
 		primary key(user_id)
 		)
 		"""
-	db = open_connection.open_connection()
+	db = open_connection.open_connection(storage)
 	cursor = db.cursor()
 	cursor.execute(user_create)
 	db.commit()
@@ -394,10 +448,10 @@ def pull_user_data(year):
 			team_name = usrs_json[i]['metadata']['team_name']
 		except:
 			team_name = None
-		refresh_user_data(display_name,league_id,user_id,team_name)
+		refresh_user_data(storage,display_name,league_id,user_id,team_name)
 		
-def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id):
-    db = open_connection.open_connection()
+def add_draft_data(storage,draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = """INSERT INTO 
                             sleeper_raw.draft_tbl(draft_player_key,draft_year,draft_type,round,pick_no,
@@ -412,33 +466,7 @@ def add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_
     db.close()
     return
 
-#only use the next block if you plan to reset the entire table
-'''
-drop_table("sleeper_raw.draft_tbl")
-draft_create = """
-    CREATE TABLE sleeper_raw.draft_tbl
-    (
-    draft_player_key character(255),
-    draft_year character(255),
-    draft_type character(255),
-    round character(255),
-    pick_no character(255),
-    overall_pick_no character(255),
-    user_id character(255),
-    roster_id character(255),
-    player_id character(255),
-    
-    primary key(draft_player_key)
-    )
-    """
-db = open_connection.open_connection()
-cursor = db.cursor()
-cursor.execute(draft_create)
-db.commit()
-cursor.close()
-db.close()
-'''
-def pull_draft_data(year):
+def pull_draft_data(year,storage):
     l_id = references.league_id(year)
     
     #first we need to get the draft id
@@ -467,10 +495,10 @@ def pull_draft_data(year):
         player_id = pk['player_id']
         draft_player_key = draft_id + "_" + player_id
         
-        add_draft_data(draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id)
+        add_draft_data(storage,draft_player_key,draft_year,draft_type,round,pick_no,overall_pick_no,user_id,roster_id,player_id)
 		
-def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points):
-    db = open_connection.open_connection()
+def add_matchup_data(storage,matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = """INSERT INTO sleeper_raw.matchups_tbl(matchup_rost_key,year,week,matchup_id,
                                                 roster_id,players,starters,points) 
@@ -487,8 +515,8 @@ def add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,sta
     db.close()
     return
 
-def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points):
-    db = open_connection.open_connection()
+def add_matchup_player_data(storage,matchup_rost_plr_key,matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points):
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = """INSERT INTO sleeper_raw.matchups_plr_tbl(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points) 
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -504,47 +532,7 @@ def add_matchup_player_data(matchup_rost_plr_key,matchup_rost_key,year,week,matc
     db.close()
     return
 
-'''
-drop_table("sleeper_raw.matchups_tbl")
-drop_table("sleeper_raw.matchups_plr_tbl")
-matchup_create = """
-    CREATE TABLE sleeper_raw.matchups_tbl
-    (
-    matchup_rost_key character(20),
-    year character(4),
-    week character(2),
-    matchup_id character(2),
-    roster_id character(2),
-    players character(255) ARRAY,
-    starters character(255) ARRAY,
-    points float(1),
-    primary key(matchup_rost_key)
-    )
-    """
-matchup_plr_create = """
-    CREATE TABLE sleeper_raw.matchups_plr_tbl
-    (
-    matchup_rost_plr_key character(30),
-    matchup_rost_key character(20),
-    year character(4),
-    week character(2),
-    matchup_id character(2),
-    roster_id character(2),
-    Player_id character(255),
-    is_starter BOOLEAN,
-    
-    primary key(matchup_rost_plr_key)
-    )
-    """
-db = open_connection.open_connection()
-cursor = db.cursor()
-cursor.execute(matchup_create)
-cursor.execute(matchup_plr_create)
-db.commit()
-cursor.close()
-db.close()
-'''
-def pull_matchups(year,week):
+def pull_matchups(year,week,storage):
     l_id = references.league_id(year)
     
     matchup = requests.get("https://api.sleeper.app/v1/league/"+l_id+"/matchups/"+str(week))
@@ -572,10 +560,10 @@ def pull_matchups(year,week):
         else:
             r_id = str(roster_id)
         matchup_rost_key = str(year)+wk+m_id+r_id
-        add_matchup_data(matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points)
+        add_matchup_data(storage,matchup_rost_key,year,week,matchup_id,roster_id,players,starters,points)
         for j in matchup_json[i]['players']:
             Player_id = j
             player_points = player_points_dict[Player_id]
             is_starter = j in matchup_json[i]['starters']
             matchup_rost_plr_key = str(matchup_rost_key) + '_' +str(Player_id)
-            add_matchup_player_data(matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points)
+            add_matchup_player_data(storage,matchup_rost_plr_key, matchup_rost_key,year,week,matchup_id,roster_id,Player_id,is_starter,player_points)
