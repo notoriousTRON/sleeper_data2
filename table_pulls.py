@@ -241,7 +241,7 @@ def pull_players(year,storage):
         refresh_player_data(storage,player_id,position,depth_chart_position,fantasy_positions,first_name,last_name,full_name,years_exp,status,birth_date,college,height,weight,age)
 
 def refresh_roster_data(storage,User_ID,roster_id,Player_id):
-    db = open_connection.open_connection()
+    db = open_connection.open_connection(storage)
     cursor = db.cursor()
     insert_query = "INSERT INTO sleeper_raw.rosters_tbl(User_ID,roster_id,Player_id) VALUES (%s, %s, %s)"
     cursor.execute(insert_query, (User_ID,roster_id,Player_id))
