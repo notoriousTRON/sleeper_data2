@@ -6,7 +6,10 @@ INSERT INTO stg.draft_dates_tbl (draft_year, draft_type, draft_date)
 ----VALUES ('2020','rookie','05/02/20')
 ----VALUES ('2021','rookie','05/02/21')
 ----VALUES ('2022','rookie','05/01/22')
-VALUES ('2023','rookie','05/01/23')
+----VALUES ('2023','rookie','05/01/23')
+----VALUES ('2024','rookie','05/01/24')
+----VALUES ('2025','rookie','05/01/25')
+VALUES ('2026','rookie','05/01/26')
 
 
 
